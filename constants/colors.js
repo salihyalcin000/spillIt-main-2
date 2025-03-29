@@ -1,0 +1,10 @@
+const COLORS = {
+  BACKGROUND: "#FAF8F7",
+  PRIMARY: "#F2DCDC",
+  SECONDARY: "#2E2E2E",
+  ACCENT: "#D8BFAA",
+  SUCCESS: "#C8D3C1",
+  TEXT_PRIMARY: "#2E2E2E",
+};
+
+export default COLORS;
