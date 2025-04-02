@@ -10,6 +10,20 @@
     <string>spillit</string>
     <key>CFBundleExecutable</key>
     <string>$(EXECUTABLE_NAME)</string>
+    <key>CFBundleIcons</key>
+    <dict>
+      <key>CFBundlePrimaryIcon</key>
+      <dict>
+        <key>CFBundleIconFiles</key>
+        <array>
+          <string>icon</string>
+          <string>adaptive-icon</string>
+          <string>splash-icon</string>
+        </array>
+        <key>CFBundleIconName</key>
+        <string>AppIcon</string>
+      </dict>
+    </dict>
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -38,7 +52,7 @@
       </dict>
     </array>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>2</string>
     <key>LSMinimumSystemVersion</key>
     <string>12.0</string>
     <key>LSRequiresIPhoneOS</key>
@@ -64,8 +78,6 @@
     <array>
       <string>UIInterfaceOrientationPortrait</string>
       <string>UIInterfaceOrientationPortraitUpsideDown</string>
-      <string>UIInterfaceOrientationLandscapeLeft</string>
-      <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
     <key>UISupportedInterfaceOrientations~ipad</key>
     <array>

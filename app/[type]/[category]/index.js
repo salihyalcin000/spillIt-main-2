@@ -76,7 +76,6 @@ export default function QuestionScreen() {
   const fetchQuestions = async () => {
     try {
       setIsLoading(true);
-      // Fetch data...same as before
       const response = await fetch(
         "https://raw.githubusercontent.com/whoroopamgupta/questions.json/main/questions.json"
       );
@@ -94,10 +93,16 @@ export default function QuestionScreen() {
         jsonData[type].categoryDetails[category] &&
         jsonData[type].categoryDetails[category].questions
       ) {
-        setQuestions(jsonData[type].categoryDetails[category].questions);
+        const loadedQuestions = jsonData[type].categoryDetails[category].questions;
+        setQuestions(loadedQuestions);
 
         // Check for saved progress once data is loaded
         checkProgress();
+
+        // If no saved progress and questions are loaded, ensure we're at the first question
+        if (!global.questionProgress?.[`${type}_${category}`] && loadedQuestions.length > 0) {
+          setCurrentIndex(0);
+        }
       } else {
         throw new Error("Questions not found in data structure");
       }
@@ -204,6 +209,15 @@ export default function QuestionScreen() {
     });
   };
 
+  const handleNext = () => {
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      // Handle completion
+      handleBack();
+    }
+  };
+
   if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, styles.loadingContainer]}>
@@ -249,17 +263,22 @@ export default function QuestionScreen() {
       <View style={styles.contentContainer}>
         <QuestionCard
           question={questions[currentIndex]}
-          panHandlers={panResponder.panHandlers}
+          panResponder={panResponder}
           slideAnim={slideAnim}
         />
-        <PaginationDots currentIndex={currentIndex} totalDots={5} />
-        <NavigationButtons
-          currentIndex={currentIndex}
-          totalQuestions={questions.length}
-          onPreviousPress={() => swipeCard(1)}
-          onNextPress={() => swipeCard(-1)}
-        />
       </View>
+
+      <NavigationButtons
+        currentIndex={currentIndex}
+        totalQuestions={questions.length}
+        onPreviousPress={() => swipeCard(1)}
+        onNextPress={handleNext}
+      />
+
+      <PaginationDots
+        currentIndex={currentIndex}
+        totalQuestions={questions.length}
+      />
     </SafeAreaView>
   );
 }

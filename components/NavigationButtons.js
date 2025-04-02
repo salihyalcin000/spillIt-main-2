@@ -47,7 +47,7 @@ const NavigationButtons = ({
             currentIndex === totalQuestions - 1 && styles.disabledButtonText,
           ]}
         >
-          Next
+          {currentIndex === totalQuestions - 1 ? "Finish" : "Continue"}
         </Text>
       </TouchableOpacity>
     </View>

@@ -5,8 +5,8 @@ import { Platform } from "react-native";
 // Set RevenueCat API Keys
 const API_KEY =
   Platform.OS === "ios"
-    ? "appl_CdCKLagNzygWrtJiskaUVdStykY"
-    : "appl_CdCKLagNzygWrtJiskaUVdStykY";
+    ? "appl_GLIKcNEMrwDHRKzHAqmATksGYuo"
+    : "appl_GLIKcNEMrwDHRKzHAqmATksGYuo";
 
 Purchases.configure({ apiKey: API_KEY });
 
