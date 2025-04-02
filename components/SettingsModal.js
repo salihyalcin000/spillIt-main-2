@@ -186,10 +186,6 @@ const SettingsModal = ({ visible, onClose }) => {
                   <Ionicons name="mail" size={24} color={theme.icon} />
                 </TouchableOpacity>
               </View>
-
-              <TouchableOpacity style={styles.shareButton} onPress={shareApp}>
-                <Text style={styles.shareButtonText}>Share App</Text>
-              </TouchableOpacity>
             </Animated.View>
           </TouchableWithoutFeedback>
         </View>

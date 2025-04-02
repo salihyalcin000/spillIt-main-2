@@ -169,9 +169,15 @@ export default function Home() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(!isSubscribed);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (isSubscribed) {
+      setShowSubscriptionModal(false);
+    }
+  }, [isSubscribed]);
 
   const handleTypeChange = (newType) => {
     if (newType === selectedType || isAnimating) return;
@@ -321,7 +327,6 @@ export default function Home() {
       />
 
       <SubscriptionModal
-        title={"Entertainment"}
         visible={showSubscriptionModal}
         onCloseResumeModal={() => setShowSubscriptionModal(false)}
       />

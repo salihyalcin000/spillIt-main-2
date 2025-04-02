@@ -420,7 +420,7 @@ const createStyles = (theme) => {
     // Question card styles
     questionCard: StyleSheet.create({
       card: {
-        height: "70%",
+        height: "80%",
         backgroundColor: theme.question,
         borderRadius: 20,
         padding: 30,
@@ -622,6 +622,45 @@ const createStyles = (theme) => {
         fontWeight: "600",
         color: theme.buttonText,
         textAlign: "center",
+      },
+    }),
+
+    subscriptionModal: StyleSheet.create({
+      modalOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: 20,
+      },
+      modalContent: {
+        backgroundColor: "#FAF8F7",
+        borderRadius: 24,
+        padding: 24,
+        width: "90%",
+        maxWidth: 400,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+      },
+      closeButton: {
+        position: "absolute",
+        top: 20,
+        right: 20,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: "#F2DCDC",
+        justifyContent: "center",
+        alignItems: "center",
+      },
+      closeButtonText: {
+        fontSize: 24,
+        color: "#2E2E2E",
+        fontWeight: "600",
       },
     }),
   };

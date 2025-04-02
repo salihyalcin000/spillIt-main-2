@@ -32,7 +32,7 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
     <Modal visible={visible} transparent animationType="slide">
       <View style={[styles.modalOverlay, { padding: 0, position: "relative" }]}>
         <TouchableOpacity
-          style={{ position: "absolute", top: 20, right: 20, zIndex: 2 }}
+          style={{ position: "absolute", top: 40, left: 20, zIndex: 2 }}
           onPress={onCloseResumeModal}
         >
           <Entypo name="cross" size={32} color={theme.icon} />
@@ -53,7 +53,7 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
           <View style={{ gap: 32, alignItems: "center", marginTop: 60 }}>
             <View>
               <Image
-                style={{ width: 100, height: 100 }}
+                style={{ width: 100, height: 100, borderRadius: 25 }}
                 source={require("../assets/images/icon.png")}
                 contentFit="cover"
               />
@@ -101,6 +101,24 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
             }}>
               3 DAYS FREE TRIAL
             </Text>
+            <Text style={{ 
+              fontSize: 32, 
+              fontWeight: "700", 
+              textAlign: "center", 
+              marginBottom: 20,
+              color: "#FF3B30"
+            }}>
+              $5.99/week
+            </Text>
+            <Text style={{ 
+              fontSize: 12, 
+              fontWeight: "400", 
+              textAlign: "center", 
+              marginBottom: 30,
+              color: "#999"
+            }}>
+              No Commitment. Cancel anytime
+            </Text>
             {offerings ? (
               offerings.map((pack) => (
                 <TouchableOpacity
@@ -108,11 +126,11 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
                   style={[
                     styles.modalButton, 
                     styles.resumeButton,
-                    { height: 60, justifyContent: "center" }
+                    { height: 70, justifyContent: "center" }
                   ]}
                   onPress={() => purchaseSubscription(pack)}
                 >
-                  <Text style={[styles.resumeButtonText, { fontSize: 22 }]}>
+                  <Text style={[styles.resumeButtonText, { fontSize: 24 }]}>
                     Continue
                   </Text>
                 </TouchableOpacity>
@@ -122,24 +140,14 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
                 style={[
                   styles.modalButton, 
                   styles.resumeButton,
-                  { height: 60, justifyContent: "center" }
+                  { height: 70, justifyContent: "center" }
                 ]}
               >
-                <Text style={[styles.resumeButtonText, { fontSize: 22 }]}>
+                <Text style={[styles.resumeButtonText, { fontSize: 24 }]}>
                   Continue
                 </Text>
               </TouchableOpacity>
             )}
-            <TouchableOpacity onPress={onCloseResumeModal}>
-              <Text
-                style={[
-                  styles.startOverButtonText,
-                  { textDecorationLine: "underline", fontSize: 18, marginTop: 10 },
-                ]}
-              >
-                Maybe Later
-              </Text>
-            </TouchableOpacity>
           </View>
           <View style={{ gap: 8, marginTop: 30 }}>
             <TouchableOpacity onPress={onCloseResumeModal}>
