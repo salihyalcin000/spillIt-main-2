@@ -185,7 +185,12 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
                       styles.resumeButton,
                       { height: 80, justifyContent: "center" },
                     ]}
-                    onPress={() => purchaseSubscription(pack)}
+                    onPress={async () => {
+                      const purchase = await purchaseSubscription(pack);
+                      if (purchase) {
+                        onCloseResumeModal();
+                      }
+                    }}
                   >
                     <Text style={[styles.resumeButtonText, { fontSize: 26 }]}>
                       Continue
