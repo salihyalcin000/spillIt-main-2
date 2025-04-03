@@ -12,7 +12,28 @@ const QuestionHeader = ({
   onSharePress,
 }) => {
   const { theme } = useTheme();
-  const styles = createStyles(theme).questionHeader;
+  const styles = {
+    ...createStyles(theme).questionHeader,
+    headerRow: {
+      ...createStyles(theme).questionHeader.headerRow,
+      position: "relative",
+      alignItems: "center",
+      justifyContent: "center",
+      marginBottom: 15,
+    },
+    backButtonContainer: {
+      ...createStyles(theme).questionHeader.backButtonContainer,
+      position: "absolute",
+      left: 0,
+      zIndex: 1,
+    },
+    headerTitle: {
+      ...createStyles(theme).questionHeader.headerTitle,
+      flex: 0,
+      textAlign: "center",
+      width: "70%",
+    },
+  };
 
   return (
     <View style={styles.header}>
@@ -24,12 +45,6 @@ const QuestionHeader = ({
           <Ionicons name="arrow-back" size={24} color={theme.icon} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{title}</Text>
-        <TouchableOpacity
-          style={[styles.backButtonContainer, styles.shareButton]}
-          onPress={onSharePress}
-        >
-          <Text style={styles.shareIcon}>⤤</Text>
-        </TouchableOpacity>
       </View>
       <View style={styles.progressContainer}>
         <View style={styles.progressBarBackground}>

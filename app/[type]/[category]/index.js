@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Share,
   BackHandler,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -21,8 +22,10 @@ import { useTheme } from "../../../styles/theme/ThemeContext";
 import createStyles from "../../../styles/appStyles";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
-const SWIPE_THRESHOLD = 0.15 * SCREEN_WIDTH;
+const SWIPE_THRESHOLD = 0.25 * SCREEN_WIDTH;
 const SWIPE_VELOCITY_THRESHOLD = 0.3;
+const CARD_WIDTH = SCREEN_WIDTH - 40;
+const CARD_SPACING = (SCREEN_WIDTH - CARD_WIDTH) / 2;
 
 // Fallback questions if data loading fails
 const FALLBACK_QUESTIONS = [
@@ -33,7 +36,21 @@ const FALLBACK_QUESTIONS = [
 
 export default function QuestionScreen() {
   const { theme } = useTheme();
-  const styles = createStyles(theme).questionScreen;
+  const styles = {
+    ...createStyles(theme).questionScreen,
+    cardContainer: {
+      width: CARD_WIDTH,
+      height: "100%",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: -30,
+    },
+    contentContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+  };
 
   const { type, category, theme: routeTheme } = useLocalSearchParams();
   const router = useRouter();
@@ -45,7 +62,9 @@ export default function QuestionScreen() {
   const [savedProgress, setSavedProgress] = useState(null);
 
   // For animation
-  const slideAnim = useState(new Animated.Value(0))[0];
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const position = Animated.divide(scrollX, SCREEN_WIDTH);
+  const flatListRef = useRef(null);
 
   // Store progress in memory
   useEffect(() => {
@@ -93,14 +112,18 @@ export default function QuestionScreen() {
         jsonData[type].categoryDetails[category] &&
         jsonData[type].categoryDetails[category].questions
       ) {
-        const loadedQuestions = jsonData[type].categoryDetails[category].questions;
+        const loadedQuestions =
+          jsonData[type].categoryDetails[category].questions;
         setQuestions(loadedQuestions);
 
         // Check for saved progress once data is loaded
         checkProgress();
 
         // If no saved progress and questions are loaded, ensure we're at the first question
-        if (!global.questionProgress?.[`${type}_${category}`] && loadedQuestions.length > 0) {
+        if (
+          !global.questionProgress?.[`${type}_${category}`] &&
+          loadedQuestions.length > 0
+        ) {
           setCurrentIndex(0);
         }
       } else {
@@ -131,65 +154,30 @@ export default function QuestionScreen() {
   };
 
   const handleResume = () => {
-    if (savedProgress) {
+    if (savedProgress && flatListRef.current) {
       setCurrentIndex(savedProgress);
+      flatListRef.current.scrollToIndex({
+        index: savedProgress,
+        animated: true,
+      });
     }
     setShowResumeModal(false);
   };
 
   const handleStartOver = () => {
     setCurrentIndex(0);
+    if (flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: 0,
+        animated: true,
+      });
+    }
     setShowResumeModal(false);
     // Clear saved progress
     if (global.questionProgress) {
       delete global.questionProgress[`${type}_${category}`];
     }
   };
-
-  const swipeCard = (direction) => {
-    Animated.timing(slideAnim, {
-      toValue: direction * SCREEN_WIDTH,
-      duration: 200,
-      useNativeDriver: true,
-    }).start(() => {
-      slideAnim.setValue(0);
-      if (direction === 1 && currentIndex > 0) {
-        setCurrentIndex(currentIndex - 1);
-      } else if (direction === -1 && currentIndex < questions.length - 1) {
-        setCurrentIndex(currentIndex + 1);
-      }
-    });
-  };
-
-  const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: (_, gestureState) =>
-      Math.abs(gestureState.dx) > 5,
-    onPanResponderMove: (_, gestureState) => {
-      slideAnim.setValue(gestureState.dx);
-    },
-    onPanResponderRelease: (_, gesture) => {
-      const velocity = Math.abs(gesture.vx);
-      if (
-        gesture.dx > SWIPE_THRESHOLD ||
-        (velocity > SWIPE_VELOCITY_THRESHOLD && gesture.dx > 0)
-      ) {
-        swipeCard(1);
-      } else if (
-        gesture.dx < -SWIPE_THRESHOLD ||
-        (velocity > SWIPE_VELOCITY_THRESHOLD && gesture.dx < 0)
-      ) {
-        swipeCard(-1);
-      } else {
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-          friction: 7,
-          tension: 40,
-        }).start();
-      }
-    },
-  });
 
   const handleShare = async () => {
     try {
@@ -209,14 +197,85 @@ export default function QuestionScreen() {
     });
   };
 
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    { useNativeDriver: false }
+  );
+
+  const handleMomentumScrollEnd = (event) => {
+    const newIndex = Math.round(
+      event.nativeEvent.contentOffset.x / SCREEN_WIDTH
+    );
+    setCurrentIndex(newIndex);
+  };
+
+  const navigateToCard = (index) => {
+    if (index >= 0 && index < questions.length && flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index,
+        animated: true,
+      });
+    }
+  };
+
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+      navigateToCard(currentIndex + 1);
     } else {
       // Handle completion
       handleBack();
     }
   };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      navigateToCard(currentIndex - 1);
+    }
+  };
+
+  const renderItem = ({ item, index }) => {
+    const scale = scrollX.interpolate({
+      inputRange: [
+        (index - 1) * SCREEN_WIDTH,
+        index * SCREEN_WIDTH,
+        (index + 1) * SCREEN_WIDTH,
+      ],
+      outputRange: [0.92, 1, 0.92],
+      extrapolate: "clamp",
+    });
+
+    const opacity = scrollX.interpolate({
+      inputRange: [
+        (index - 1) * SCREEN_WIDTH,
+        index * SCREEN_WIDTH,
+        (index + 1) * SCREEN_WIDTH,
+      ],
+      outputRange: [0.7, 1, 0.7],
+      extrapolate: "clamp",
+    });
+
+    return (
+      <Animated.View
+        style={{
+          width: SCREEN_WIDTH,
+          alignItems: "center",
+          justifyContent: "center",
+          transform: [{ scale }],
+          opacity,
+        }}
+      >
+        <View style={styles.cardContainer}>
+          <QuestionCard question={item} />
+        </View>
+      </Animated.View>
+    );
+  };
+
+  const getItemLayout = (_, index) => ({
+    length: SCREEN_WIDTH,
+    offset: SCREEN_WIDTH * index,
+    index,
+  });
 
   if (isLoading) {
     return (
@@ -261,23 +320,34 @@ export default function QuestionScreen() {
       />
 
       <View style={styles.contentContainer}>
-        <QuestionCard
-          question={questions[currentIndex]}
-          panResponder={panResponder}
-          slideAnim={slideAnim}
+        <Animated.FlatList
+          ref={flatListRef}
+          data={questions}
+          renderItem={renderItem}
+          keyExtractor={(_, index) => `question-${index}`}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          onMomentumScrollEnd={handleMomentumScrollEnd}
+          initialScrollIndex={currentIndex}
+          getItemLayout={getItemLayout}
+          decelerationRate="fast"
+          snapToInterval={SCREEN_WIDTH}
+          snapToAlignment="center"
+          contentContainerStyle={{ alignItems: "center" }}
         />
       </View>
-
-      <NavigationButtons
-        currentIndex={currentIndex}
-        totalQuestions={questions.length}
-        onPreviousPress={() => swipeCard(1)}
-        onNextPress={handleNext}
-      />
 
       <PaginationDots
         currentIndex={currentIndex}
         totalQuestions={questions.length}
+      />
+      <NavigationButtons
+        currentIndex={currentIndex}
+        totalQuestions={questions.length}
+        onPreviousPress={handlePrevious}
+        onNextPress={handleNext}
       />
     </SafeAreaView>
   );

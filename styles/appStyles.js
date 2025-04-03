@@ -474,7 +474,7 @@ const createStyles = (theme) => {
     navigationButtons: StyleSheet.create({
       buttonsContainer: {
         flexDirection: "row",
-        justifyContent: "space-between",
+        justifyContent: "space-around",
         paddingHorizontal: 30,
         paddingVertical: 20,
         marginBottom: 20,

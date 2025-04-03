@@ -17,7 +17,7 @@ export default function CategoryCard({ item, index, theme, onPress, styles }) {
             {isLocked ? (
               <Text style={styles.descriptionText}>
                 {description}{" "}
-                <Ionicons name="lock-closed" size={16} color="#DAA520" />
+                <Ionicons name="lock-closed" size={14} color="#DAA520" />
               </Text>
             ) : (
               <Text style={styles.descriptionText}>{description}</Text>
