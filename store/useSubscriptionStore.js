@@ -2,7 +2,6 @@ import { create } from "zustand";
 import Purchases from "react-native-purchases";
 import { Platform } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useSubscriptionStore } from '../store/useSubscriptionStore';
 // Set RevenueCat API Keys
 const API_KEY =
   Platform.OS === "ios"
