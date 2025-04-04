@@ -1,7 +1,8 @@
 import { create } from "zustand";
 import Purchases from "react-native-purchases";
 import { Platform } from "react-native";
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSubscriptionStore } from '../store/useSubscriptionStore';
 // Set RevenueCat API Keys
 const API_KEY =
   Platform.OS === "ios"
@@ -18,15 +19,29 @@ const useSubscriptionStore = create((set) => ({
   checkSubscription: async () => {
     try {
       const customerInfo = await Purchases.getCustomerInfo();
-      const isActive =
-        customerInfo.entitlements.active["pro_weekly"] !== undefined;
-      set({ isSubscribed: isActive });
-      console.log("Subscription status:", isActive);
+      
+      // Check if subscription is active and not expired
+      const entitlement = customerInfo.entitlements.active["pro_weekly"];
+      const isActive = entitlement !== undefined;
+      
+      // If active, verify expiration
+      let isValid = isActive;
+      if (isActive && entitlement.expirationDate) {
+        const expirationDate = new Date(entitlement.expirationDate);
+        const now = new Date();
+        isValid = expirationDate > now;
+      }
+      
+      set({ isSubscribed: isValid });
+      return isValid;
     } catch (error) {
       console.error("Error checking subscription:", error);
       set({ isSubscribed: false });
+      return false;
     }
   },
+
+
 
   // 🔹 Restore purchases (for users reinstalling or switching devices)
   restorePurchases: async () => {
@@ -36,8 +51,10 @@ const useSubscriptionStore = create((set) => ({
         restoredInfo.entitlements.active["pro_weekly"] !== undefined;
       set({ isSubscribed: isActive });
       console.log("Restored Purchases:", restoredInfo);
+      return isActive;
     } catch (error) {
       console.error("Error restoring purchases:", error);
+      return false;
     }
   },
 
@@ -69,7 +86,10 @@ const useSubscriptionStore = create((set) => ({
       const customerInfo = await Purchases.getCustomerInfo();
       const isActive =
         customerInfo.entitlements.active["pro_weekly"] !== undefined;
+      
+      // Update subscription state
       set({ isSubscribed: isActive });
+      console.log("Updated subscription status:", isActive);
 
       return purchase;
     } catch (error) {
@@ -77,6 +97,34 @@ const useSubscriptionStore = create((set) => ({
       return null;
     }
   },
+
+  // 🔹 Initialize subscription state
+  initialize: async () => {
+    try {
+      await Purchases.configure({ apiKey: API_KEY });
+      const isActive = await useSubscriptionStore.getState().checkSubscription();
+      console.log("Initial subscription status:", isActive);
+      return isActive;
+    } catch (error) {
+      console.error("Error initializing subscription:", error);
+      return false;
+    }
+  }
 }));
+
+// Add initialization from storage
+initializeFromStorage: async () => {
+  try {
+    const storedStatus = await AsyncStorage.getItem('subscriptionStatus');
+    if (storedStatus !== null) {
+      set({ isSubscribed: JSON.parse(storedStatus) });
+    }
+  } catch (error) {
+    console.error("Error loading subscription from storage:", error);
+  }
+}
+
+// Initialize subscription state when the store is created
+useSubscriptionStore.getState().initialize();
 
 export default useSubscriptionStore;

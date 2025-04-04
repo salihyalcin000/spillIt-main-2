@@ -23,7 +23,7 @@ const TERMS_OF_USE_URL =
 const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
   const { theme } = useTheme();
   const styles = createStyles(theme).resumeModal;
-  const { fetchOfferings, offerings, purchaseSubscription } =
+  const { fetchOfferings, offerings, purchaseSubscription, checkSubscription } =
     useSubscriptionStore();
 
   // Animation value for the button
@@ -59,10 +59,21 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
   };
 
   useEffect(() => {
-    if (false && !offerings) {
+    if (!offerings) {
       fetchOfferings();
     }
   }, [offerings]);
+
+  const handlePurchase = async (pack) => {
+    const purchase = await purchaseSubscription(pack);
+    if (purchase) {
+      // Double check subscription status
+      const isActive = await checkSubscription();
+      if (isActive) {
+        onCloseResumeModal();
+      }
+    }
+  };
 
   const openPrivacyPolicy = () => {
     Linking.openURL(PRIVACY_POLICY_URL);
@@ -185,12 +196,7 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
                       styles.resumeButton,
                       { height: 80, justifyContent: "center" },
                     ]}
-                    onPress={async () => {
-                      const purchase = await purchaseSubscription(pack);
-                      if (purchase) {
-                        onCloseResumeModal();
-                      }
-                    }}
+                    onPress={() => handlePurchase(pack)}
                   >
                     <Text style={[styles.resumeButtonText, { fontSize: 26 }]}>
                       Continue

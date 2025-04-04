@@ -106,6 +106,7 @@ export default function Home() {
   const router = useRouter();
   const isSubscribed = useSubscriptionStore((state) => state.isSubscribed);
   const fetchOfferings = useSubscriptionStore((state) => state.fetchOfferings);
+  const checkSubscription = useSubscriptionStore((state) => state.checkSubscription);
 
   // Fetch data from GitHub
   useEffect(() => {
@@ -156,6 +157,7 @@ export default function Home() {
 
     fetchData();
     fetchOfferings();
+    checkSubscription(); // Check subscription status on app start
   }, []);
 
   // Update selected type when theme param changes
@@ -173,11 +175,25 @@ export default function Home() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
+  // Update subscription modal visibility when subscription status changes
   useEffect(() => {
-    if (isSubscribed) {
-      setShowSubscriptionModal(false);
-    }
+    setShowSubscriptionModal(!isSubscribed);
   }, [isSubscribed]);
+
+  // Periodically check subscription status
+  useEffect(() => {
+    const interval = setInterval(() => {
+      checkSubscription();
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCloseSubscriptionModal = async () => {
+    const isActive = await checkSubscription();
+    console.log("Subscription status after check:", isActive);
+    setShowSubscriptionModal(!isActive);
+  };
 
   const handleTypeChange = (newType) => {
     if (newType === selectedType || isAnimating) return;
@@ -328,7 +344,7 @@ export default function Home() {
 
       <SubscriptionModal
         visible={showSubscriptionModal}
-        onCloseResumeModal={() => setShowSubscriptionModal(false)}
+        onCloseResumeModal={handleCloseSubscriptionModal}
       />
     </SafeAreaView>
   );
