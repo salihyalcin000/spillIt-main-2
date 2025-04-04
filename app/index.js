@@ -96,6 +96,7 @@ const FALLBACK_DATA = {
 export default function Home() {
   const { theme } = useTheme(); // Get current theme from context
   const styles = createStyles(theme); // Generate styles based on current theme
+  const { initialize } = useSubscriptionStore();
 
   const { theme: routeTheme } = useLocalSearchParams();
   const [data, setData] = useState(null);
@@ -160,6 +161,10 @@ export default function Home() {
     checkSubscription(); // Check subscription status on app start
   }, []);
 
+  useEffect(() => {
+    initialize();
+  }, []);
+
   // Update selected type when theme param changes
   useEffect(() => {
     if (routeTheme && types.includes(routeTheme)) {
@@ -188,12 +193,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
-
-  const handleCloseSubscriptionModal = async () => {
-    const isActive = await checkSubscription();
-    console.log("Subscription status after check:", isActive);
-    setShowSubscriptionModal(!isActive);
-  };
 
   const handleTypeChange = (newType) => {
     if (newType === selectedType || isAnimating) return;
@@ -344,7 +343,7 @@ export default function Home() {
 
       <SubscriptionModal
         visible={showSubscriptionModal}
-        onCloseResumeModal={handleCloseSubscriptionModal}
+        onCloseResumeModal={() => setShowSubscriptionModal(false)}
       />
     </SafeAreaView>
   );

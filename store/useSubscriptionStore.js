@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import Purchases from "react-native-purchases";
 import { Platform } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+
 // Set RevenueCat API Keys
 const API_KEY =
   Platform.OS === "ios"
@@ -14,41 +16,30 @@ const useSubscriptionStore = create((set) => ({
   isSubscribed: false,
   offerings: null,
 
-  // 🔹 Check if user has an active subscription
+
   checkSubscription: async () => {
     try {
       const customerInfo = await Purchases.getCustomerInfo();
-      
-      // Check if subscription is active and not expired
-      const entitlement = customerInfo.entitlements.active["pro_weekly"];
-      const isActive = entitlement !== undefined;
-      
-      // If active, verify expiration
-      let isValid = isActive;
-      if (isActive && entitlement.expirationDate) {
-        const expirationDate = new Date(entitlement.expirationDate);
-        const now = new Date();
-        isValid = expirationDate > now;
-      }
-      
-      set({ isSubscribed: isValid });
-      return isValid;
+      const isActive = customerInfo.entitlements.active["pro"] !== undefined;
+      set({ isSubscribed: isActive });
+      await AsyncStorage.setItem("subscriptionStatus", JSON.stringify(isActive));
+      console.log("Subscription status:", isActive);
+      return isActive;
     } catch (error) {
       console.error("Error checking subscription:", error);
       set({ isSubscribed: false });
+      await AsyncStorage.setItem("subscriptionStatus", JSON.stringify(false));
       return false;
     }
   },
+  
 
-
-
-  // 🔹 Restore purchases (for users reinstalling or switching devices)
   restorePurchases: async () => {
     try {
       const restoredInfo = await Purchases.restorePurchases();
-      const isActive =
-        restoredInfo.entitlements.active["pro_weekly"] !== undefined;
+      const isActive = restoredInfo.entitlements.active["pro"] !== undefined;
       set({ isSubscribed: isActive });
+      await AsyncStorage.setItem("subscriptionStatus", JSON.stringify(isActive));
       console.log("Restored Purchases:", restoredInfo);
       return isActive;
     } catch (error) {
@@ -56,6 +47,7 @@ const useSubscriptionStore = create((set) => ({
       return false;
     }
   },
+  
 
   // 🔹 Fetch available subscription plans
   fetchOfferings: async () => {
@@ -75,53 +67,48 @@ const useSubscriptionStore = create((set) => ({
     }
   },
 
-  // 🔹 Purchase a subscription
   purchaseSubscription: async (selectedPackage) => {
     try {
       const purchase = await Purchases.purchasePackage(selectedPackage);
       console.log("Purchase successful:", purchase);
-
-      // Refresh subscription status
+  
       const customerInfo = await Purchases.getCustomerInfo();
-      const isActive =
-        customerInfo.entitlements.active["pro_weekly"] !== undefined;
-      
-      // Update subscription state
+      const isActive = customerInfo.entitlements.active["pro"] !== undefined;
+  
       set({ isSubscribed: isActive });
+      await AsyncStorage.setItem("subscriptionStatus", JSON.stringify(isActive));
       console.log("Updated subscription status:", isActive);
-
+  
       return purchase;
     } catch (error) {
       console.error("Error purchasing:", error);
       return null;
     }
   },
-
-  // 🔹 Initialize subscription state
+  
   initialize: async () => {
     try {
       await Purchases.configure({ apiKey: API_KEY });
+  
+      // Load stored subscription first
+      const stored = await AsyncStorage.getItem("subscriptionStatus");
+      if (stored !== null) {
+        const parsed = JSON.parse(stored);
+        set({ isSubscribed: parsed });
+        console.log("Loaded stored subscription status:", parsed);
+      }
+  
+      // Then re-check live status
       const isActive = await useSubscriptionStore.getState().checkSubscription();
-      console.log("Initial subscription status:", isActive);
+      console.log("Initial subscription status (live):", isActive);
       return isActive;
     } catch (error) {
       console.error("Error initializing subscription:", error);
       return false;
     }
   }
-}));
+  
 
-// Add initialization from storage
-initializeFromStorage: async () => {
-  try {
-    const storedStatus = await AsyncStorage.getItem('subscriptionStatus');
-    if (storedStatus !== null) {
-      set({ isSubscribed: JSON.parse(storedStatus) });
-    }
-  } catch (error) {
-    console.error("Error loading subscription from storage:", error);
-  }
-}
 
 // Initialize subscription state when the store is created
 useSubscriptionStore.getState().initialize();

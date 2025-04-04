@@ -83,6 +83,11 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
     Linking.openURL(TERMS_OF_USE_URL);
   };
 
+  useEffect(() => {
+    checkSubscription();
+  }, []);
+  
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={[styles.modalOverlay, { padding: 0, position: "relative" }]}>
