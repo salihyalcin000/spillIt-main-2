@@ -3,7 +3,6 @@ import Purchases from "react-native-purchases";
 import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 // Set RevenueCat API Keys
 const API_KEY =
   Platform.OS === "ios"
@@ -15,7 +14,6 @@ Purchases.configure({ apiKey: API_KEY });
 const useSubscriptionStore = create((set) => ({
   isSubscribed: false,
   offerings: null,
-
 
   checkSubscription: async () => {
     try {
@@ -32,7 +30,6 @@ const useSubscriptionStore = create((set) => ({
       return false;
     }
   },
-  
 
   restorePurchases: async () => {
     try {
@@ -47,18 +44,13 @@ const useSubscriptionStore = create((set) => ({
       return false;
     }
   },
-  
 
-  // 🔹 Fetch available subscription plans
   fetchOfferings: async () => {
     try {
       const offerings = await Purchases.getOfferings();
       if (offerings.current) {
         set({ offerings: offerings.current.availablePackages });
-        console.log(
-          "Available Offerings:",
-          offerings.current.availablePackages
-        );
+        console.log("Available Offerings:", offerings.current.availablePackages);
       } else {
         set({ offerings: null });
       }
@@ -71,34 +63,32 @@ const useSubscriptionStore = create((set) => ({
     try {
       const purchase = await Purchases.purchasePackage(selectedPackage);
       console.log("Purchase successful:", purchase);
-  
+
       const customerInfo = await Purchases.getCustomerInfo();
       const isActive = customerInfo.entitlements.active["pro"] !== undefined;
-  
+
       set({ isSubscribed: isActive });
       await AsyncStorage.setItem("subscriptionStatus", JSON.stringify(isActive));
       console.log("Updated subscription status:", isActive);
-  
+
       return purchase;
     } catch (error) {
       console.error("Error purchasing:", error);
       return null;
     }
   },
-  
+
   initialize: async () => {
     try {
       await Purchases.configure({ apiKey: API_KEY });
-  
-      // Load stored subscription first
+
       const stored = await AsyncStorage.getItem("subscriptionStatus");
       if (stored !== null) {
         const parsed = JSON.parse(stored);
         set({ isSubscribed: parsed });
         console.log("Loaded stored subscription status:", parsed);
       }
-  
-      // Then re-check live status
+
       const isActive = await useSubscriptionStore.getState().checkSubscription();
       console.log("Initial subscription status (live):", isActive);
       return isActive;
@@ -107,10 +97,9 @@ const useSubscriptionStore = create((set) => ({
       return false;
     }
   }
-  
+}));
 
-
-// Initialize subscription state when the store is created
+// ✅ Now it's correctly closed and initialized
 useSubscriptionStore.getState().initialize();
 
 export default useSubscriptionStore;
