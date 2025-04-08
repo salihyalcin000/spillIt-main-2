@@ -36,6 +36,10 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
     }
   }, [visible]);
 
+  useEffect(() => {
+    checkSubscription();
+  }, []);
+
   // Pulse animation function
   const startPulseAnimation = () => {
     Animated.sequence([
@@ -83,11 +87,6 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
     Linking.openURL(TERMS_OF_USE_URL);
   };
 
-  useEffect(() => {
-    checkSubscription();
-  }, []);
-  
-
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={[styles.modalOverlay, { padding: 0, position: "relative" }]}>
@@ -97,190 +96,196 @@ const SubscriptionModal = ({ visible, onCloseResumeModal }) => {
         >
           <Entypo name="cross" size={28} color={theme.icon} />
         </TouchableOpacity>
-        <View
-          style={[
-            styles.modalContent,
-            {
-              flex: 1,
-              width: "100%",
-              borderRadius: 0,
-              paddingTop: 60,
-              paddingBottom: 20,
-              justifyContent: "center", // Center content vertically
-            },
-          ]}
+        <ScrollView 
+          style={{ width: "100%" }}
+          contentContainerStyle={{ flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
         >
-          <View style={{ alignItems: "center" }}>
-            <Image
-              style={{ width: 140, height: 140, borderRadius: 20 }}
-              source={require("../assets/images/icon.png")}
-              contentFit="cover"
-            />
-            <Text
-              style={{
-                fontSize: 28,
-                fontWeight: "900",
-                textAlign: "center",
-                marginTop: 30,
-                marginBottom: 30,
-                paddingHorizontal: 10,
-              }}
-            >
-              DEEP QUESTIONS COUPLE CONVOS GOSSIP SESHES
-            </Text>
-          </View>
-
-          <View style={{ gap: 12, marginBottom: 50 }}>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
-            >
-              <FontAwesome5 name="unlock-alt" size={24} color={theme.icon} />
-              <Text style={{ fontSize: 16 }}>Unlock all themes and topics</Text>
-            </View>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
-            >
-              <Entypo name="infinity" size={24} color={theme.icon} />
-              <Text style={{ fontSize: 16 }}>New questions added weekly</Text>
-            </View>
-            <View
-              style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
-            >
-              <FontAwesome
-                name="calendar-times-o"
-                size={24}
-                color={theme.icon}
+          <View
+            style={[
+              styles.modalContent,
+              {
+                flex: 1,
+                width: "100%",
+                borderRadius: 0,
+                paddingTop: 60,
+                paddingBottom: 20,
+                justifyContent: "center", // Center content vertically
+              },
+            ]}
+          >
+            <View style={{ alignItems: "center" }}>
+              <Image
+                style={{ width: 140, height: 140, borderRadius: 20 }}
+                source={require("../assets/images/icon.png")}
+                contentFit="cover"
               />
-              <Text style={{ fontSize: 16 }}>Easily cancel anytime</Text>
+              <Text
+                style={{
+                  fontSize: 28,
+                  fontWeight: "900",
+                  textAlign: "center",
+                  marginTop: 30,
+                  marginBottom: 30,
+                  paddingHorizontal: 10,
+                }}
+              >
+                DEEP QUESTIONS COUPLE CONVOS GOSSIP SESHES
+              </Text>
             </View>
-          </View>
 
-          <View style={styles.modalButtonsColumn}>
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: "700",
-                textAlign: "center",
-                marginBottom: 5,
-                color: "#FF7F00",
-              }}
-            >
-              3 DAYS FREE TRIAL
-            </Text>
-            <Text
-              style={{
-                fontSize: 28,
-                fontWeight: "700",
-                textAlign: "center",
-                marginBottom: 10,
-                color: "#FF3B30",
-              }}
-            >
-              $5.99/week
-            </Text>
-            {/* <Text
-              style={{
-                fontSize: 12,
-                fontWeight: "400",
-                textAlign: "center",
-                marginBottom: 15,
-                color: "#999",
-              }}
-            >
-              No Commitment. Cancel anytime
-            </Text> */}
-            {offerings ? (
-              offerings.map((pack) => (
-                <Animated.View
-                  key={pack.identifier}
-                  style={{ transform: [{ scale: pulseAnim }] }}
-                >
+            <View style={{ gap: 12, marginBottom: 50 }}>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
+              >
+                <FontAwesome5 name="unlock-alt" size={24} color={theme.icon} />
+                <Text style={{ fontSize: 16 }}>Unlock all themes and topics</Text>
+              </View>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
+              >
+                <Entypo name="infinity" size={24} color={theme.icon} />
+                <Text style={{ fontSize: 16 }}>New questions added weekly</Text>
+              </View>
+              <View
+                style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
+              >
+                <FontAwesome
+                  name="calendar-times-o"
+                  size={24}
+                  color={theme.icon}
+                />
+                <Text style={{ fontSize: 16 }}>Easily cancel anytime</Text>
+              </View>
+            </View>
+
+            <View style={styles.modalButtonsColumn}>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  textAlign: "center",
+                  marginBottom: 5,
+                  color: "#FF7F00",
+                }}
+              >
+                3 DAYS FREE TRIAL
+              </Text>
+              <Text
+                style={{
+                  fontSize: 28,
+                  fontWeight: "700",
+                  textAlign: "center",
+                  marginBottom: 10,
+                  color: "#FF3B30",
+                }}
+              >
+                $5.99/week
+              </Text>
+              {/* <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: "400",
+                  textAlign: "center",
+                  marginBottom: 15,
+                  color: "#999",
+                }}
+              >
+                No Commitment. Cancel anytime
+              </Text> */}
+              {offerings ? (
+                offerings.map((pack) => (
+                  <Animated.View
+                    key={pack.identifier}
+                    style={{ transform: [{ scale: pulseAnim }] }}
+                  >
+                    <TouchableOpacity
+                      style={[
+                        styles.modalButton,
+                        styles.resumeButton,
+                        { height: 80, justifyContent: "center" },
+                      ]}
+                      onPress={() => handlePurchase(pack)}
+                    >
+                      <Text style={[styles.resumeButtonText, { fontSize: 26 }]}>
+                        Continue
+                      </Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                ))
+              ) : (
+                <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
                   <TouchableOpacity
                     style={[
                       styles.modalButton,
                       styles.resumeButton,
                       { height: 80, justifyContent: "center" },
                     ]}
-                    onPress={() => handlePurchase(pack)}
                   >
                     <Text style={[styles.resumeButtonText, { fontSize: 26 }]}>
                       Continue
                     </Text>
                   </TouchableOpacity>
                 </Animated.View>
-              ))
-            ) : (
-              <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-                <TouchableOpacity
+              )}
+            </View>
+
+            <View style={{ marginTop: 30 }}>
+              <TouchableOpacity onPress={onCloseResumeModal}>
+                <Text
                   style={[
-                    styles.modalButton,
-                    styles.resumeButton,
-                    { height: 80, justifyContent: "center" },
+                    styles.startOverButtonText,
+                    {
+                      fontSize: 12,
+                      color: "#bbb",
+                      textAlign: "center",
+                      marginBottom: 8,
+                    },
                   ]}
                 >
-                  <Text style={[styles.resumeButtonText, { fontSize: 26 }]}>
-                    Continue
+                  Restore Previous Purchases
+                </Text>
+              </TouchableOpacity>
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 8,
+                  justifyContent: "center",
+                }}
+              >
+                <TouchableOpacity onPress={openTermsOfUse}>
+                  <Text
+                    style={[
+                      styles.startOverButtonText,
+                      {
+                        fontSize: 12,
+                        color: "#bbb",
+                        textDecorationLine: "underline",
+                      },
+                    ]}
+                  >
+                    Terms of Use
                   </Text>
                 </TouchableOpacity>
-              </Animated.View>
-            )}
-          </View>
-
-          <View style={{ marginTop: 30 }}>
-            <TouchableOpacity onPress={onCloseResumeModal}>
-              <Text
-                style={[
-                  styles.startOverButtonText,
-                  {
-                    fontSize: 12,
-                    color: "#bbb",
-                    textAlign: "center",
-                    marginBottom: 8,
-                  },
-                ]}
-              >
-                Restore Previous Purchases
-              </Text>
-            </TouchableOpacity>
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 8,
-                justifyContent: "center",
-              }}
-            >
-              <TouchableOpacity onPress={openTermsOfUse}>
-                <Text
-                  style={[
-                    styles.startOverButtonText,
-                    {
-                      fontSize: 12,
-                      color: "#bbb",
-                      textDecorationLine: "underline",
-                    },
-                  ]}
-                >
-                  Terms of Use
-                </Text>
-              </TouchableOpacity>
-              <Text style={[{ fontSize: 12, color: "#bbb" }]}>•</Text>
-              <TouchableOpacity onPress={openPrivacyPolicy}>
-                <Text
-                  style={[
-                    styles.startOverButtonText,
-                    {
-                      fontSize: 12,
-                      color: "#bbb",
-                      textDecorationLine: "underline",
-                    },
-                  ]}
-                >
-                  Privacy Policy
-                </Text>
-              </TouchableOpacity>
+                <Text style={[{ fontSize: 12, color: "#bbb" }]}>•</Text>
+                <TouchableOpacity onPress={openPrivacyPolicy}>
+                  <Text
+                    style={[
+                      styles.startOverButtonText,
+                      {
+                        fontSize: 12,
+                        color: "#bbb",
+                        textDecorationLine: "underline",
+                      },
+                    ]}
+                  >
+                    Privacy Policy
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </View>
     </Modal>
   );
